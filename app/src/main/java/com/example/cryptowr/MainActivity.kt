@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
 }
 @Composable
 fun CryptoWr() {
+    //a
     var inputAmount by remember { mutableStateOf("") }
     var convertedAmount : Double? by remember { mutableStateOf(0.0) }
     var fromCurrency by remember { mutableStateOf("BTC") }
