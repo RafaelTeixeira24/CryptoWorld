@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.cryptowr
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -10,6 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +28,7 @@ import com.example.cryptowr.ui.theme.CryptoWrTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +52,10 @@ fun CryptoWr() {
     Column(
         modifier = Modifier
             .padding(16.dp)
-            .fillMaxWidth()
+            .fillMaxWidth(),
+
+        horizontalAlignment = Alignment.CenterHorizontally
+
     ) {
 
         Spacer(modifier = Modifier.height(50.dp))
@@ -54,24 +65,14 @@ fun CryptoWr() {
             label = { Text("Enter Amount") },
             modifier = Modifier.fillMaxWidth()
         )
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
-            value = fromCurrency,
-            onValueChange = { fromCurrency = it },
-            label = { Text("From Currency (BTC, ETH, LTC, BNB)") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        DropDown("From Currency", fromCurrency, {fromCurrency = it})
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        TextField(
-            value = toCurrency,
-            onValueChange = { toCurrency = it },
-            label = { Text("To Currency (BTC, ETH, LTC, BNB)") },
-            modifier = Modifier.fillMaxWidth()
-        )
+
+        DropDown("To currency", toCurrency, {toCurrency = it})
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -148,4 +149,48 @@ fun DefaultPreview() {
     CryptoWrTheme {
         CryptoWr()
     }
+}
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDown(label : String, selectedCurrency : String, currencySelected : (String) -> Unit){
+    val list : List<String> = listOf("BTC", "ETH", "LTC", "BNB")
+    var isExpanded : Boolean by rememberSaveable { mutableStateOf(false)}
+
+
+        ExposedDropdownMenuBox(
+
+            expanded = isExpanded,
+            onExpandedChange = {
+                isExpanded = !isExpanded
+
+                Log.d("AA", isExpanded.toString())
+            }
+        ) {
+            TextField(
+
+                value = selectedCurrency,
+                label = { Text(label) },
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
+                list.forEachIndexed { i, text ->
+                    DropdownMenuItem(
+                        text = { Text(text = text) },
+                        onClick = {
+                            currencySelected(list[i])
+                            isExpanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                }
+
+            }
+        }
+
 }
