@@ -89,59 +89,21 @@ fun CryptoWr() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Converted Amount: $convertedAmount $toCurrencyDisp",
+            text = "Converted Amount: %.2f $toCurrencyDisp".format(convertedAmount),
             modifier = Modifier.fillMaxWidth()
         )
     }
 }
-
-fun convert(amount: Double, fromCurrency : String, toCurrency : String): Double {
-    return when (fromCurrency){
-        "BTC" -> convertBTC(toCurrency, amount)
-        "ETH" -> convertETH(toCurrency, amount)
-        "LTC" -> convertLTC(toCurrency, amount)
-        "BNB" -> convertBNB(toCurrency, amount)
-        else -> {0.0}
-    }
-}
-fun convertBTC(toCurrency: String, amount: Double): Double {
-    return when (toCurrency) {
-        "BTC" -> amount
-        "ETH" -> amount * 18.44
-        "LTC" -> amount * 873.83
-        "BNB" -> amount * 108.85
-        else -> 0.0
-    }
+val coins : List<String> = listOf("BTC", "ETH", "LTC", "BNB")
+val values : List<Double> = listOf(57646.78, 3183.93, 66.39, 539.09)
+fun convert(amount: Double, fromCurrency: String, toCurrency: String) : Double{
+    val indFrom = coins.indexOf(fromCurrency)
+    val indTo = coins.indexOf(toCurrency)
+    return (amount * values[indFrom]) / values[indTo]
 }
 
-fun convertETH(toCurrency: String, amount: Double): Double {
-    return when (toCurrency) {
-        "BTC" -> amount * 0.054
-        "ETH" -> amount
-        "LTC" -> amount * 47.39
-        "BNB" -> amount * 5.92
-        else -> 0.0
-    }
-}
 
-fun convertLTC(toCurrency: String, amount: Double): Double {
-    return when (toCurrency) {
-        "BTC" -> amount * 0.05
-        "ETH" -> amount * 0.5
-        "LTC" -> amount
-        "BNB" -> amount * 0.12
-        else -> 0.0
-    }
-}
-fun convertBNB(toCurrency: String, amount: Double): Double {
-    return when (toCurrency) {
-        "BTC" -> amount * 0.0092
-        "ETH" -> amount * 0.17
-        "LTC" -> amount * 8.06
-        "BNB" -> amount
-        else -> 0.0
-    }
-}
+
 
 @Preview(showBackground = true)
 @Composable
