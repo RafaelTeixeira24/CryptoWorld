@@ -8,13 +8,19 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.List
@@ -40,6 +46,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
@@ -101,12 +108,14 @@ fun TopBar(navControll: NavController){
 
 @Composable
 fun CryptoWrTracker(navControll: NavController){
-
+    val coinsOrd = coins.sortedDescending()
+    val valuesOrd = values.sortedDescending()
     TopBar(navControll)
     Column(
         modifier = Modifier
             .padding(16.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .fillMaxHeight(),
 
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -115,47 +124,64 @@ fun CryptoWrTracker(navControll: NavController){
 
 
 
-        LazyColumn {
+        LazyColumn(modifier = Modifier.fillMaxSize()){
 
-            /*
-            items(5) { index ->
+            items(coinsOrd.size) { index ->
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     ),
-                    modifier = Modifier.fillMaxWidth().height(height = 100.dp)
-                ) {
-                    Text(
-                        text = "Filled",
-                        modifier = Modifier
-                            .padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(height = 80.dp)
+                        .padding(vertical = 5.dp),
 
-                    )
+
+                ) {
+                    Row (
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(
+                                text = coinsOrd[index],
+                                modifier = Modifier
+                                    .padding(16.dp),
+
+                                )
+                            Text(
+                                text = stringResource(id = R.string.value_display, valuesOrd[index]),
+                                modifier = Modifier
+                                    .padding(16.dp)
+
+                                )
+                    }
                 }
             }
-*/
-
         }
     }
 }
 @Composable
 fun CryptoWrConversor(navControll: NavController) {
     var inputAmount by rememberSaveable { mutableStateOf("") }
-    var convertedAmount : Double by rememberSaveable { mutableStateOf(0.0) }
+    var convertedAmount : Double by rememberSaveable { mutableDoubleStateOf(0.0) }
     var fromCurrency by rememberSaveable { mutableStateOf("BTC") }
     var toCurrency by rememberSaveable { mutableStateOf("ETH") }
     var toCurrencyDisp by rememberSaveable { mutableStateOf("") }
 
 
     TopBar(navControll)
+
     Column(
         modifier = Modifier
             .padding(16.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
 
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
+
 
         Spacer(modifier = Modifier.height(100.dp))
         TextField(
@@ -166,12 +192,12 @@ fun CryptoWrConversor(navControll: NavController) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        DropDown(stringResource(R.string.from_currency_text), fromCurrency, {fromCurrency = it})
+        DropDown(stringResource(R.string.from_currency_text), fromCurrency) { fromCurrency = it }
 
         Spacer(modifier = Modifier.height(8.dp))
 
 
-        DropDown(stringResource(R.string.to_currency_text), toCurrency, {toCurrency = it})
+        DropDown(stringResource(R.string.to_currency_text), toCurrency) { toCurrency = it }
 
         Spacer(modifier = Modifier.height(16.dp))
 
