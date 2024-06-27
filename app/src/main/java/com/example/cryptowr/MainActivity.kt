@@ -2,7 +2,6 @@
 
 package com.example.cryptowr
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -55,7 +53,25 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import org.w3c.dom.DocumentType
+
+data class CryptoCoin(val name : String, val price : Double)
+val cryptoCoins : List<CryptoCoin> = listOf(
+    CryptoCoin("BTC", 57174.99),
+    CryptoCoin("ETH", 3175.88),
+    CryptoCoin("LTC", 66.47),
+    CryptoCoin("BNB", 534.39),
+    CryptoCoin("EUR", 1.0),
+    CryptoCoin("ADA", 0.36),
+    CryptoCoin("SOL", 128.08),
+    CryptoCoin("XRP", 0.44),
+    CryptoCoin("DOT", 5.37),
+    CryptoCoin("DOGE", 0.12),
+    CryptoCoin("AVAX", 4.55),
+    CryptoCoin("LINK", 12.94),
+    CryptoCoin("VET", 0.02442127)
+).sortedBy{it.name}
+val cryptoCoinsOrdPrice = cryptoCoins.sortedByDescending { it.price }
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,13 +89,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-val coins : List<String> = listOf("BTC", "ETH", "LTC", "BNB", "EUR", "ADA", "SOL", "XRP", "DOT", "DOGE", "AVAX", "LINK", "VET")
-val values : List<Double> = listOf(57174.99, 3175.88, 66.47, 534.39, 1.0, 0.36, 128.08, 0.44, 5.37, 0.12, 4.55, 12.94, 0.02442127)
-
 @Composable
 fun TopBar(navController: NavController) {
     TopAppBar(
-        colors = TopAppBarDefaults.smallTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary
         ),
@@ -96,9 +109,47 @@ fun TopBar(navController: NavController) {
 }
 
 @Composable
+fun DropDown(label : String, selectedCurrency : String, currencySelected : (String) -> Unit){
+    var isExpanded : Boolean by rememberSaveable { mutableStateOf(false)}
+
+
+    ExposedDropdownMenuBox(
+
+        expanded = isExpanded,
+        onExpandedChange = {
+            isExpanded = !isExpanded
+
+            Log.d("AA", isExpanded.toString())
+        }
+    ) {
+        TextField(
+
+            value = selectedCurrency,
+            label = { Text(label) },
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
+            modifier = Modifier.menuAnchor()
+        )
+        ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
+
+            cryptoCoins.forEachIndexed { _, coin ->
+                DropdownMenuItem(
+                    text = { Text(text = coin.name) },
+                    onClick = {
+                        currencySelected(coin.name)
+                        isExpanded = false
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
 fun CryptoWrTracker(navControll: NavController){
-    val coinsOrd = coins
-    val valuesOrd = values
     Scaffold(
         topBar = { TopBar(navControll) },
         content = { paddingValues ->
@@ -113,7 +164,7 @@ fun CryptoWrTracker(navControll: NavController){
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(coinsOrd.size) { index ->
+                    items(cryptoCoinsOrdPrice.size) { index ->
                         Card(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -129,11 +180,11 @@ fun CryptoWrTracker(navControll: NavController){
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = coinsOrd[index],
+                                    text = cryptoCoinsOrdPrice[index].name,
                                     modifier = Modifier.padding(16.dp),
                                 )
                                 Text(
-                                    text = stringResource(id = R.string.value_display, valuesOrd[index]),
+                                    text = stringResource(id = R.string.value_display, cryptoCoinsOrdPrice[index].price),
                                     modifier = Modifier.padding(16.dp)
                                 )
                             }
@@ -199,9 +250,10 @@ fun CryptoWrConversor(navControll: NavController) {
     )
 }
 fun convert(amount: Double, fromCurrency: String, toCurrency: String) : Double{
-    val indFrom = coins.indexOf(fromCurrency)
-    val indTo = coins.indexOf(toCurrency)
-    return (amount * values[indFrom]) / values[indTo]
+    val indFrom = cryptoCoins.indexOfFirst { it.name == fromCurrency }
+    val indTo = cryptoCoins.indexOfFirst { it.name == toCurrency }
+
+    return (amount * cryptoCoins[indFrom].price) / cryptoCoins[indTo].price
 }
 
 
@@ -209,44 +261,5 @@ fun convert(amount: Double, fromCurrency: String, toCurrency: String) : Double{
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DropDown(label : String, selectedCurrency : String, currencySelected : (String) -> Unit){
-   var isExpanded : Boolean by rememberSaveable { mutableStateOf(false)}
 
-
-        ExposedDropdownMenuBox(
-
-            expanded = isExpanded,
-            onExpandedChange = {
-                isExpanded = !isExpanded
-
-                Log.d("AA", isExpanded.toString())
-            }
-        ) {
-            TextField(
-
-                value = selectedCurrency,
-                label = { Text(label) },
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
-                modifier = Modifier.menuAnchor()
-            )
-            ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
-                coins.forEachIndexed { i, text ->
-                    DropdownMenuItem(
-                        text = { Text(text = text) },
-                        onClick = {
-                            currencySelected(coins[i])
-                            isExpanded = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                }
-
-            }
-        }
-
-}
 
