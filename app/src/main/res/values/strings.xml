@@ -3,6 +3,6 @@
     <string name="enter_amount_text">Enter amount</string>
     <string name="from_currency_text">From Currency</string>
     <string name="to_currency_text">To Currency</string>
-    <string name="converted_amount_text">Converted Amount: %.2f %s</string>
-    <string name="value_display">%.2f EUR</string>
+    <string name="converted_amount_text">Converted Amount: %.4f %s</string>
+    <string name="value_display">%.4f EUR</string>
 </resources>

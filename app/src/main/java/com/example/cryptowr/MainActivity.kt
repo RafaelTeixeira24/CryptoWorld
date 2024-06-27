@@ -55,6 +55,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.w3c.dom.DocumentType
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,94 +73,76 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-val coins : List<String> = listOf("BTC", "ETH", "LTC", "BNB")
-val values : List<Double> = listOf(57646.78, 3183.93, 66.39, 539.09)
+val coins : List<String> = listOf("BTC", "ETH", "LTC", "BNB", "EUR", "ADA", "SOL", "XRP", "DOT", "DOGE", "AVAX", "LINK", "VET")
+val values : List<Double> = listOf(57174.99, 3175.88, 66.47, 534.39, 1.0, 0.36, 128.08, 0.44, 5.37, 0.12, 4.55, 12.94, 0.02442127)
 
 @Composable
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-fun TopBar(navControll: NavController){
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary
-                ),
-
-                title = { Text(stringResource(R.string.app_name)) },
-                actions = {
-                    IconButton(onClick = { navControll.navigate("conversor")}) {
-                        Icon(imageVector = Icons.Filled.Build, contentDescription = "Conversor")
-
-
-                    }
-                    IconButton(onClick = { navControll.navigate("tracker") }) {
-                        Icon(imageVector = Icons.Filled.List, contentDescription = "Tracker")
-
-                    }
-
-                }
-            )
+fun TopBar(navController: NavController) {
+    TopAppBar(
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary
+        ),
+        title = { Text(stringResource(R.string.app_name)) },
+        actions = {
+            IconButton(onClick = { navController.navigate("conversor") }) {
+                Icon(imageVector = Icons.Filled.Build, contentDescription = "Conversor")
+            }
+            IconButton(onClick = { navController.navigate("tracker") }) {
+                Icon(imageVector = Icons.Filled.List, contentDescription = "Tracker")
+            }
         }
-    ) {
-
-    }
+    )
 }
 
 @Composable
 fun CryptoWrTracker(navControll: NavController){
-    val coinsOrd = coins.sortedDescending()
-    val valuesOrd = values.sortedDescending()
-    TopBar(navControll)
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .fillMaxHeight(),
+    val coinsOrd = coins
+    val valuesOrd = values
+    Scaffold(
+        topBar = { TopBar(navControll) },
+        content = { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(10.dp))
 
-        horizontalAlignment = Alignment.CenterHorizontally
-
-    ) {
-        Spacer(modifier = Modifier.height(100.dp))
-
-
-
-        LazyColumn(modifier = Modifier.fillMaxSize()){
-
-            items(coinsOrd.size) { index ->
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(height = 80.dp)
-                        .padding(vertical = 5.dp),
-
-
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Row (
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Text(
-                                text = coinsOrd[index],
-                                modifier = Modifier
-                                    .padding(16.dp),
-
+                    items(coinsOrd.size) { index ->
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(80.dp)
+                                .padding(vertical = 5.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = coinsOrd[index],
+                                    modifier = Modifier.padding(16.dp),
                                 )
-                            Text(
-                                text = stringResource(id = R.string.value_display, valuesOrd[index]),
-                                modifier = Modifier
-                                    .padding(16.dp)
-
+                                Text(
+                                    text = stringResource(id = R.string.value_display, valuesOrd[index]),
+                                    modifier = Modifier.padding(16.dp)
                                 )
+                            }
+                        }
                     }
                 }
             }
         }
-    }
+    )
 }
 @Composable
 fun CryptoWrConversor(navControll: NavController) {
@@ -168,58 +151,52 @@ fun CryptoWrConversor(navControll: NavController) {
     var fromCurrency by rememberSaveable { mutableStateOf("BTC") }
     var toCurrency by rememberSaveable { mutableStateOf("ETH") }
     var toCurrencyDisp by rememberSaveable { mutableStateOf("") }
+    Scaffold(
+        topBar = { TopBar(navControll) },
+        content = { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(10.dp))
+                TextField(
+                    value = inputAmount,
+                    onValueChange = { inputAmount = it },
+                    label = { Text(stringResource(R.string.enter_amount_text)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+                Spacer(modifier = Modifier.height(16.dp))
 
+                DropDown(stringResource(R.string.from_currency_text), fromCurrency) { fromCurrency = it }
 
-    TopBar(navControll)
+                Spacer(modifier = Modifier.height(8.dp))
 
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
+                DropDown(stringResource(R.string.to_currency_text), toCurrency) { toCurrency = it }
 
-        horizontalAlignment = Alignment.CenterHorizontally
+                Spacer(modifier = Modifier.height(16.dp))
 
-    ) {
+                Button(
+                    onClick = {
+                        // Simulate conversion (replace with real API call)
+                        convertedAmount = convert(inputAmount.toDoubleOrNull() ?: 0.0, fromCurrency, toCurrency)
+                        toCurrencyDisp = toCurrency
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Convert")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
 
-
-        Spacer(modifier = Modifier.height(100.dp))
-        TextField(
-            value = inputAmount,
-            onValueChange = { inputAmount = it },
-            label = { Text(stringResource(R.string.enter_amount_text)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        DropDown(stringResource(R.string.from_currency_text), fromCurrency) { fromCurrency = it }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-
-        DropDown(stringResource(R.string.to_currency_text), toCurrency) { toCurrency = it }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                // Simulate conversion (replace with real API call)
-                convertedAmount = convert(inputAmount.toDoubleOrNull() ?: 0.0, fromCurrency, toCurrency)
-                toCurrencyDisp = toCurrency
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Convert")
+                Text(
+                    text = stringResource(R.string.converted_amount_text, convertedAmount, toCurrencyDisp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-
-            text = stringResource(R.string.converted_amount_text, convertedAmount, toCurrencyDisp),
-            //text = "Converted Amount: %.2f $toCurrencyDisp".format(convertedAmount),
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
+    )
 }
 fun convert(amount: Double, fromCurrency: String, toCurrency: String) : Double{
     val indFrom = coins.indexOf(fromCurrency)
