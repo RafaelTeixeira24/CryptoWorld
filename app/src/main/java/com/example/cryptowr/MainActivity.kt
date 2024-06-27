@@ -3,7 +3,6 @@
 package com.example.cryptowr
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -55,6 +54,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 data class CryptoCoin(val name : String, val price : Double)
+
+
 val cryptoCoins : List<CryptoCoin> = listOf(
     CryptoCoin("BTC", 57174.99),
     CryptoCoin("ETH", 3175.88),
@@ -118,8 +119,6 @@ fun DropDown(label : String, selectedCurrency : String, currencySelected : (Stri
         expanded = isExpanded,
         onExpandedChange = {
             isExpanded = !isExpanded
-
-            Log.d("AA", isExpanded.toString())
         }
     ) {
         TextField(
@@ -231,7 +230,6 @@ fun CryptoWrConversor(navControll: NavController) {
 
                 Button(
                     onClick = {
-                        // Simulate conversion (replace with real API call)
                         convertedAmount = convert(inputAmount.toDoubleOrNull() ?: 0.0, fromCurrency, toCurrency)
                         toCurrencyDisp = toCurrency
                     },
